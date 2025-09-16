@@ -1,0 +1,18 @@
+
+@uriCliente = http://localhost:8000/cliente
+@uriPrueba = http://localhost:8000/
+
+POST {{uriCliente}}
+Content-Type: application/json
+
+{
+  "Nombre_Cliente": "mzkxckxz",
+  "Telefono_Cliente": "",
+  "Instagram_Cliente" : "",
+  "Email_Cliente": "",
+  "Direccion": "el mas rapido de totte italia"
+}
+
+###
+
+GET {{uriPrueba}}

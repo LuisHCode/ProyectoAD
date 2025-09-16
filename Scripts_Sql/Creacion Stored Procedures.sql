@@ -66,7 +66,7 @@ END;
 GO
 
 
--- Procedimiento para actualizar el inventario después de una venta
+-- Procedimiento para actualizar el inventario despuï¿½s de una venta
 CREATE PROCEDURE sp_ActualizarInventarioPorVenta
     @ID_Producto INT,
     @Cantidad INT
@@ -170,12 +170,12 @@ BEGIN
     -- Resultado
     SELECT 
         @Mes AS Mes,
-        @Anio AS Año,
+        @Anio AS Aï¿½o,
         ISNULL(@TotalVentas, 0) AS TotalVentas,
         ISNULL(@TotalCompras, 0) AS TotalCompras,
         @Ganancia AS Ganancia;
     
-    -- Detalle de productos más vendidos
+    -- Detalle de productos mï¿½s vendidos
     SELECT TOP 10
         p.ID_Producto,
         p.Nombre_Producto,
@@ -199,3 +199,59 @@ BEGIN
     ORDER BY Cantidad_Unitaria;
 END;
 GO
+
+--Procedimiento para insertar cliente
+CREATE OR ALTER PROCEDURE [dbo].[InsertarCliente]
+    @Nombre_Cliente VARCHAR(100),
+    @Telefono_Cliente VARCHAR(20) = NULL,
+    @Instagram_Cliente VARCHAR(50) = NULL, 
+    @Email_Cliente VARCHAR(100) = NULL, 
+    @Direccion VARCHAR(255) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Verificar duplicados
+        IF EXISTS (
+            SELECT 1
+            FROM Cliente
+            WHERE 
+                (@Telefono_Cliente IS NOT NULL AND Telefono_Cliente = @Telefono_Cliente)
+                OR (@Instagram_Cliente IS NOT NULL AND Instagram_Cliente = @Instagram_Cliente)
+                OR (@Email_Cliente IS NOT NULL AND Email_Cliente = @Email_Cliente)
+        )
+        BEGIN
+            -- Cancelar si ya existe
+            ROLLBACK TRANSACTION;
+            RAISERROR('El cliente ya existe con el mismo telÃ©fono, Instagram o email.', 16, 1);
+            RETURN;
+        END
+
+        -- Insertar si no existe
+        INSERT INTO Cliente
+        (
+            [Nombre_Cliente], 
+            [Telefono_Cliente], 
+            [Instagram_Cliente],
+            [Email_Cliente], 
+            [Direccion], 
+            [Fecha_Registro]
+        ) 
+        VALUES
+        (
+            @Nombre_Cliente,
+            @Telefono_Cliente,
+            @Instagram_Cliente,
+            @Email_Cliente,
+            @Direccion,
+            GETDATE()
+        );
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+		SELECT ERROR_MESSAGE() AS ErrorMessage;
+    END CATCH
+END;
